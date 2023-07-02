@@ -5,23 +5,18 @@ import java.util.Scanner;
 
 public class Main {
     public static void main(String[] args) {
-        char[][] board = fillBoard(3,3);
+        char[][] board = {{'_', '_', '_'}, {'_', '_', '_'}, {'_', '_', '_'}};
         printBoard(board);
-
-        int[] move = getInput2();
-        addMove(board, move);
-
-        boolean xWins = hasWinningCondition(board, 'X');
-        boolean oWins = hasWinningCondition(board, 'O');
-        //evaluateGame(board,xWins,oWins);
+        game(board,hasWinningCondition(board, 'X'),hasWinningCondition(board, 'O'));
     }
+
     public static char[][] fillBoard(int n, int m) {
         Scanner sc = new Scanner(System.in);
         String input = sc.nextLine();
         char[] chars = input.toCharArray();
         char[][] board = new char[n][m];
 
-        for (int i = 0; i < chars.length;) {
+        for (int i = 0; i < chars.length; ) {
             for (int j = 0; j < n; j++) {
                 for (int k = 0; k < m; k++) {
                     board[j][k] = chars[i];
@@ -31,6 +26,15 @@ public class Main {
         }
         return board;
     }
+
+    public static void printEmptyBoard() {
+        System.out.println("---------");
+        for (int i = 0; i < 3; i++) {
+            System.out.println("| _ _ _ |");
+        }
+        System.out.println("---------");
+    }
+
     public static void printBoard(char[][] board) {
         System.out.println("---------");
         for (int i = 0; i < board.length; i++) {
@@ -42,6 +46,7 @@ public class Main {
         }
         System.out.println("---------");
     }
+
     public static boolean isStringInt(String s) {
         try {
             Integer.parseInt(s);
@@ -50,12 +55,13 @@ public class Main {
             return false;
         }
     }
+
     public static int[] getInput() {
         Scanner sc = new Scanner(System.in);
         boolean validInput = false;
         int n;
         int m;
-        int [] move = new int[2];
+        int[] move = new int[2];
         while (!validInput) {
             String first = sc.next();
             String second = sc.next();
@@ -75,10 +81,12 @@ public class Main {
         }
         return move;
     }
+
     public static int[] getInput2() {
         Scanner sc = new Scanner(System.in);
         boolean validInput = false;
-        int [] move = new int[2];
+        boolean number = false;
+        int[] move = new int[2];
         while (!validInput) {
             for (int i = 0; i < 2; i++) {
                 if (sc.hasNextInt()) {
@@ -88,22 +96,28 @@ public class Main {
                     sc.nextLine();
                     break;
                 }
-            } if (move[0] < 1 || move[0] > 3 || move[1] < 1 || move[1] > 3) {
-                System.out.println("Coordinates should be from 1 to 3!");
-            } else {
-                validInput = true;
+                number = true;
+            }
+            if (number) {
+                if (move[0] < 1 || move[0] > 3 || move[1] < 1 || move[1] > 3) {
+                    System.out.println("Coordinates should be from 1 to 3!");
+                } else {
+                    validInput = true;
+                }
             }
         }
         return move;
     }
-    public static void addMove(char[][] board, int[] move) {
+
+    public static void addMove(char[][] board, int[] move, char player) {
         while (!(board[move[0] - 1][move[1] - 1] == '_')) {
             System.out.println("This cell is occupied! Choose another one!");
             move = getInput2();
         }
-        board[move[0] - 1][move[1] - 1] = 'X';
+        board[move[0] - 1][move[1] - 1] = player;
         printBoard(board);
     }
+
     public static boolean allCharactersEqual(char[] chars, char c) {
         for (char aChar : chars) {
             if (aChar != c) {
@@ -112,6 +126,7 @@ public class Main {
         }
         return true;
     }
+
     public static boolean hasWinningCondition(char[][] game, char c) {
         boolean playerWins = false;
         //Player wins horizontal
@@ -125,7 +140,7 @@ public class Main {
         for (int i = 0; i < game.length; i++) {
             char[] column = new char[game.length];
             for (int j = 0; j < game[i].length; j++) {
-                    column[j] = game[j][i];
+                column[j] = game[j][i];
             }
             if (allCharactersEqual(column, c)) {
                 playerWins = true;
@@ -138,6 +153,7 @@ public class Main {
         }
         return playerWins;
     }
+
     public static boolean hasWinningCondition2(char[][] game, char c) {
         boolean playerWins = false;
         //Player wins horizontal
@@ -160,6 +176,7 @@ public class Main {
         }
         return playerWins;
     }
+
     public static void evaluateGame(char[][] board, boolean xWins, boolean oWins) {
         int numberOfX = 0;
         int numberOfO = 0;
@@ -174,7 +191,7 @@ public class Main {
         }
         int difference = Math.abs(numberOfX - numberOfO);
 
-        if((xWins && oWins) || (1 < difference)) {
+        if ((xWins && oWins) || (1 < difference)) {
             System.out.println("Impossible");
         } else if (xWins) {
             System.out.println("X wins");
@@ -183,6 +200,35 @@ public class Main {
         } else if (Arrays.deepToString(board).contains("_")) {
             System.out.println("Game not finished");
         } else {
+            System.out.println("Draw");
+        }
+    }
+
+    public static void game(char[][] board, boolean xWins, boolean oWins) {
+        char player;
+        boolean gameOver = false;
+        for (int i = 0; i < 9; i++) {
+            if (i % 2 == 0) {
+                player = 'X';
+            } else {
+                player = 'O';
+            }
+            addMove(board, getInput2(), player);
+            xWins = hasWinningCondition(board, 'X');
+            oWins = hasWinningCondition(board, 'O');
+            if (xWins) {
+                System.out.println("X wins");
+                gameOver = true;
+                break;
+            }
+            if (oWins) {
+                System.out.println("O wins");
+                gameOver = true;
+                break;
+            }
+
+        }
+        if (!gameOver) {
             System.out.println("Draw");
         }
     }
